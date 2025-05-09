@@ -40,4 +40,4 @@ jobs:
           secret_key: ${{ secrets.MINIO_SECRET_KEY }}
           bucket: 'gitpages'
           source_dir: '_book'
-          target_dir: 'quartotest.app.gcp.local'
+          target_dir: '/quartotest.app.gcp.local'
