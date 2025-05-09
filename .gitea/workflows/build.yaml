@@ -1,0 +1,43 @@
+name: Build and Deploy Website
+run-name: ${{ gitea.actor }} is Building a quarto website
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Run a script
+        run: echo "Building Quarto Website Book"
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Install GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install -y gh
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+      - name: Install Tinytex
+        run: quarto install tinytex
+      - name: Render Quarto Site
+        uses: quarto-dev/quarto-actions/render@v2
+      # - name: Deploy
+      #   uses: peaceiris/actions-gh-pages@v4
+      #   with:
+      #     github_token: ${{ secrets.GH_TOKEN }}
+      #     publish_dir: ./_book
+      - name: Minio Deploy
+        uses: hkdobrev/minio-deploy-action@v1
+        with:
+          endpoint: ${{ secrets.MINIO_ENDPOINT }}
+          access_key: ${{ secrets.MINIO_ACCESS_KEY }}
+          secret_key: ${{ secrets.MINIO_SECRET_KEY }}
+          bucket: 'gitpages'
+          source_dir: '_book'
+          target_dir: 'quartotest.app.gcp.local'
